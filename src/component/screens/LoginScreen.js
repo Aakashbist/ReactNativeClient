@@ -8,6 +8,8 @@ import parseFirebaseError from '../errorParser/firebaseErrorParser';
 import { Overlay } from 'react-native-elements';
 import axios from 'axios';
 import { User } from '../../models/User';
+import AsyncStorage from '@react-native-community/async-storage';
+import { storeDataInAsyncStorage, getDataFromAsyncStorage } from '../../utils/asyncStorageHelper';
 
 
 const Login = (props) => {
@@ -26,29 +28,25 @@ const Login = (props) => {
 
     handleLogin = async () => {
         // const user = new User(email, password)
-        // const notes = await axios.post('http://localhost:3000/api/user/login', {
-        //     email: email,
-        //     password: password
-        // });
-        // alert(JSON.stringify(notes));
-        setIsLoading(true)
-        Firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(() => {
-                const user = getCurrentUser();
-                AsyncStorage.setItem("userId", user.uid);
-                AsyncStorage.setItem("userEmail", user.email);
+        try {
+            const user = await axios.post('http://localhost:3000/api/user/login', {
+                email: email,
+                password: password
+            });
+            storeDataInAsyncStorage("token", user.data.token);
+        }
+        catch (err) {
+            return alert(err);
+        }
 
-                alert(userId)
-                setIsLoading(false)
-            })
-            .catch((error) => {
-                setIsLoading(false)
-                let errorMessage = parseFirebaseError(error);
-                if (errorMessage) {
-                    setError(errorMessage);
-                }
-            })
+
     }
+
+
+
+
+
+
     var overlayView =
         <React.Fragment>
             <Overlay

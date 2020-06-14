@@ -1,24 +1,37 @@
+import AsyncStorage from '@react-native-community/async-storage';
 import React, { useEffect } from 'react';
 import { ActivityIndicator, Image, View } from 'react-native';
-import { Firebase } from '../../config/Firebase';
 import AppRoute from '../../resources/appRoute';
 import styles from '../../resources/styles';
+import { getDataFromAsyncStorage } from '../../utils/asyncStorageHelper';
 
 const AuthLoading = (props) => {
     useEffect(() => {
         currentAuthState();
     })
 
-    currentAuthState = () => {
-        Firebase.auth().onAuthStateChanged((user) => {
-            if (user) {
-                props.navigation.navigate(AppRoute.Note);
 
+
+
+    currentAuthState = () => {
+        getDataFromAsyncStorage("token").then((token) => {
+
+            if (token) {
+                props.navigation.navigate(AppRoute.Note);
             }
             else {
                 props.navigation.navigate(AppRoute.Auth)
             }
-        });
+        })
+        //     Firebase.auth().onAuthStateChanged((user) => {
+        //         if (user) {
+        //             props.navigation.navigate(AppRoute.Note);
+
+        //         }
+        //         else {
+        //             props.navigation.navigate(AppRoute.Auth)
+        //         }
+        //     });
     };
 
     return (

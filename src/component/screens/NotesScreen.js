@@ -10,29 +10,31 @@ import firebase, { Firebase } from '../../config/Firebase'
 import { getNotes, deleteNotesWithId, getNoteById } from '../../services/NoteService';
 import { getCurrentUser } from '../../config/Firebase';
 import { Alert } from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 const Notes = (props) => {
 
     const [notes, setNotes] = useState([]);
 
-    const currentUser = getCurrentUser().uid;
+    // const currentUser = getCurrentUser().uid;
 
     //load data initially
     useEffect(() => {
-        loadNotes(currentUser);
+        loadNotes();
     }, [])
 
     //load data when navigating back
     useEffect(() => {
         props.navigation.addListener('didFocus', () => {
-            loadNotes(currentUser);
+            loadNotes();
         })
     }, [])
 
-    loadNotes = (currentUser) => {
-        getNotes(currentUser).then((notes) => {
-            setNotesInState(notes);
-        })
-            .catch(error => alert(">>>here?>?? : " + error));
+    loadNotes = () => {
+        getNotes().then((notes) => {
+            alert(JSON.stringify(notes));
+            setNotes(notes)
+        }).catch(err => alert(err))
+
     }
 
     setNotesInState = (notesList) => {
@@ -49,7 +51,7 @@ const Notes = (props) => {
                 {
                     text: 'OK',
                     onPress: () => deleteNotesWithId(noteId).then(() => {
-                        loadNotes(currentUser);
+                        loadNotes();
                     })
                         .catch(error => {
                             Alert.alert(error);
@@ -138,7 +140,11 @@ Notes.navigationOptions = (props) => ({
                 type='material'
                 size={30}
                 color={colors.white}
-                onPress={() => Firebase.auth().signOut()}
+                onPress={() => {
+                    AsyncStorage.removeItem("token")
+
+                }
+                }
             />
 
 

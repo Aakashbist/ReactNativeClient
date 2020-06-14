@@ -31,8 +31,21 @@ const AddNotes = (props) => {
     const [imageUri, setImageUri] = useState();
     const [noteKey, setNoteKey] = useState();
     const [isSaving, setIsSaving] = useState(false);
+    const [photo, setPhoto] = useState();
 
     const currentUser = getCurrentUser().uid;
+
+
+    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWUwOWIxZWZjMGM0ZGIwMDIyNzY4MmQiLCJlbWFpbCI6ImFha3NoQGdtYWlsLmNvbSIsImlhdCI6MTU5MTk5Mjc2NH0.B7NcS3CdNQSsDbQuHGs0bwuXInXpBcN27kIC8Gb7mNA"
+    const authAxios = axios.create({
+        baseURL: 'http://localhost:3000/api',
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'multipart/form-data',
+
+        }
+    })
 
     useEffect(() => {
         let _canAddNotes = description.trim().length > 0 &&
@@ -113,6 +126,13 @@ const AddNotes = (props) => {
             else {
                 setImageFileName(response.name);
                 setImageUri(response.uri)
+
+                const photo = {
+                    uri: response.uri,
+                    type: response.type,
+                    name: `photo${response.name}`
+                }
+                setPhoto(photo)
             }
         })
             .catch(error => setError(error))
@@ -120,22 +140,18 @@ const AddNotes = (props) => {
 
     handleAddNotes = () => {
         setIsSaving(true)
-        let notes;
-        getDownloadUrl(imageUri, imageFileName)
-            .then((url) => {
-                notes = new Notes(address, description, url, latitude, longitude, currentUser);
-                createNotes(notes)
-                    .then(() => {
-                        setIsSaving(false)
-                        props.navigation.navigate(AppRoute.NotesList)
-                    })
-            })
-            .catch(error => {
-                alert(error)
-                setIsSaving(false)
-                let errorMessage = parseFirebaseError(error);
-                setError(errorMessage);
-            })
+        const data = new FormData();
+        data.append("photo", photo);
+        alert("hello")
+        alert(Array.from(data), ">>>>>")
+        alert(JSON.stringify(data));
+        // try {
+        //     const res = await authAxios.post('/document', data);
+        //     alert(JSON.stringify(res.data));
+        // }
+        // catch (error) {
+        //     return alert(error.message + "xxxxx");
+        // }
     }
 
     handleUpdateNotes = () => {

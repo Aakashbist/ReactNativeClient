@@ -39,34 +39,20 @@ const Signup = (props) => {
 
     handleSignUp = () => {
         const user = new User(email, password, name)
-        //try {
-        //
-        //     const notes = await axios.post('http://localhost:3000/api/user/register', user);
-        //     alert(JSON.stringify(notes));
-        // } catch (error) {
-        //     alert(JSON.stringify(error.response.data))
-        // }
-        return axios.post('http://localhost:3000/api/user/register', user).then(notes => {
-            alert(JSON.stringify(notes));
-        }).catch((error) => {
-            alert(JSON.stringify(error.response.data.message))
-        });
+        setIsLoading(true);
+        return axios.post('http://localhost:3000/api/user/register', user)
+            .then(data => {
+
+                setIsLoading(false);
+                navigateToLogin();
+            }).catch((error) => {
+                alert(JSON.stringify(error.response.data.message))
+                setIsLoading(false);
+            });
 
 
-        // setIsLoading(true);
-        // Firebase.auth().createUserWithEmailAndPassword(email, password)
-        //     .then(() => {
-        //         clearFields();
-        //         setStep(SignupSteps.SIGNUP_SUCCESS);
-        //     })
-        //     .catch((error) => {
-        //         setIsLoading(false)
-        //         let errorMessage = parseFirebaseError(error);
-        //         if (errorMessage) {
-        //             setError(errorMessage);
-        //         }
-        //     })
-        //     .finally(() => setIsLoading(false));
+
+
     }
 
     navigateToLogin = () => {
