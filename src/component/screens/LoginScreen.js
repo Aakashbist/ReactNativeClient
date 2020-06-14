@@ -28,15 +28,19 @@ const Login = (props) => {
 
     handleLogin = async () => {
         // const user = new User(email, password)
+        setIsLoading(true)
         try {
             const user = await axios.post('http://localhost:3000/api/user/login', {
                 email: email,
                 password: password
             });
             storeDataInAsyncStorage("token", user.data.token);
+            setIsLoading(false);
+            props.navigation.navigate(AppRoute.NotesList)
         }
         catch (err) {
-            return alert(err);
+            setIsLoading(false);
+            setError(err.response.data.message);
         }
 
 

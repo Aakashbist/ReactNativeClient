@@ -1,19 +1,10 @@
 import axios from 'axios';
 import { getDataFromAsyncStorage } from '../utils/asyncStorageHelper';
+import { axiosConfig } from '../config/axiosConfig';
+
 
 const url = "https://us-central1-notes-1e004.cloudfunctions.net/notes"
 
-// export async function getNotes(userId) {
-//     try {
-//         const result = await axios.get(`${url}`);
-//         const allNotes = result.data;
-//         const notesByCurrentUserId = allNotes.filter(note => { return note.userId === userId });
-//         return notesByCurrentUserId;
-//     }
-//     catch (error) {
-//         return alert(error);
-//     };
-// }
 
 export async function deleteNotesWithId(noteId) {
     try {
@@ -38,19 +29,12 @@ export async function getNoteById(noteId) {
 }
 export function getNotes() {
 
-
-
-    getDataFromAsyncStorage('token').then(async (res) => {
-        axios.get("http://localhost:3000/api/notes", {
-            headers: {
-                Authorization: `Bearer ${res}`
-            }
-        }).then((result) => {
-            alert(JSON.stringify(result.data) + ">>>>>>>gn")
-            return result.data;
-        }).catch(error => { return error })
-    });
-
+    return new Promise(async (resolve, reject) => {
+        const res = await getDataFromAsyncStorage('token');
+        axiosConfig(res).get("/notes").then((result) => {
+            resolve(result.data);
+        }).catch(error => { reject(error); });
+    })
 }
 
 

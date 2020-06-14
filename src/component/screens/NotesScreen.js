@@ -31,7 +31,6 @@ const Notes = (props) => {
 
     loadNotes = () => {
         getNotes().then((notes) => {
-            alert(JSON.stringify(notes));
             setNotes(notes)
         }).catch(err => alert(err))
 
@@ -74,7 +73,7 @@ const Notes = (props) => {
                 keyExtractor={(item) => item.id}
                 renderItem={({ item }) => (
                     <Card
-                        image={{ uri: item.imageUrl }}>
+                        image={{ uri: item.imgurl }}>
 
                         <Text style={{ fontSize: 16 }}>{item.address}</Text>
                         <View style={styles.containerFlexRow}>
@@ -141,7 +140,8 @@ Notes.navigationOptions = (props) => ({
                 size={30}
                 color={colors.white}
                 onPress={() => {
-                    AsyncStorage.removeItem("token")
+                    AsyncStorage.removeItem("token");
+                    props.navigation.navigate(AppRoute.Login)
 
                 }
                 }

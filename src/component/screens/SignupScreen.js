@@ -46,7 +46,7 @@ const Signup = (props) => {
                 setIsLoading(false);
                 navigateToLogin();
             }).catch((error) => {
-                alert(JSON.stringify(error.response.data.message))
+                setError(error.response.data.message);
                 setIsLoading(false);
             });
 
