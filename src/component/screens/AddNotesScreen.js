@@ -1,19 +1,15 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import { Image, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Alert } from 'react-native';
-import { Icon, SearchBar, Overlay } from 'react-native-elements';
-
+import { ActivityIndicator, Alert, Image, SafeAreaView, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Icon, Overlay, SearchBar } from 'react-native-elements';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { Notes } from '../../models/Notes';
+import AppRoute from '../../resources/appRoute';
 import colors from '../../resources/colors';
 import styles from '../../resources/styles';
-import { Notes } from '../../models/Notes';
-import { getDownloadUrl, openDocumentPicker } from '../../services/ImageUploadService';
+import { openDocumentPicker } from '../../services/ImageUploadService';
 import { getGooglePlaceAutocomplete, getGooglePlaceDetails } from '../../services/mapService';
-import parseFirebaseError from '../errorParser/firebaseErrorParser';
-import parseMapApiError from '../errorParser/mapApiErrorParser';
 import { createNotes, getNoteById, updateNote } from '../../services/NoteService';
-import AppRoute from '../../resources/appRoute';
-import { getCurrentUser } from '../../config/Firebase';
-
+import parseMapApiError from '../errorParser/mapApiErrorParser';
 
 
 const AddNotes = (props) => {
@@ -33,22 +29,10 @@ const AddNotes = (props) => {
     const [isSaving, setIsSaving] = useState(false);
     const [photo, setPhoto] = useState();
 
-    const currentUser = getCurrentUser().uid;
-
-
-    const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1ZWUwOWIxZWZjMGM0ZGIwMDIyNzY4MmQiLCJlbWFpbCI6ImFha3NoQGdtYWlsLmNvbSIsImlhdCI6MTU5MTk5Mjc2NH0.B7NcS3CdNQSsDbQuHGs0bwuXInXpBcN27kIC8Gb7mNA"
-    const authAxios = axios.create({
-        baseURL: 'http://localhost:3000/api',
-        headers: {
-            Authorization: `Bearer ${token}`,
-            'Accept': 'application/json',
-            'Content-Type': 'multipart/form-data',
-
-        }
-    })
+    const url = "http://localhost:3000/uploads/2020-06-12T11:34:41.605Zsudoku_banner.png";
 
     useEffect(() => {
-        let _canAddNotes = description.trim().length > 0 &&
+        let _canAddNotes =
             imageUri !== undefined && !isSaving;
         if (canAddNotes !== _canAddNotes) {
             setCanAddNotes(_canAddNotes);
@@ -63,8 +47,8 @@ const AddNotes = (props) => {
     }, []);
 
     getNotes = (key, mode) => {
-        getNoteById(key).then((data) => {
-            setNoteFields(data, mode, key);
+        getNoteById(key).then((res) => {
+            setNoteFields(res, mode, key);
         }).catch((error) => console.log(error));
     };
 
@@ -139,33 +123,29 @@ const AddNotes = (props) => {
     }
 
     handleAddNotes = () => {
-        setIsSaving(true)
-        const data = new FormData();
-        data.append("photo", photo);
-        alert("hello")
-        alert(Array.from(data), ">>>>>")
-        alert(JSON.stringify(data));
-        // try {
-        //     const res = await authAxios.post('/document', data);
-        //     alert(JSON.stringify(res.data));
-        // }
-        // catch (error) {
-        //     return alert(error.message + "xxxxx");
-        // }
+        let notes;
+        notes = new Notes(address, description, url, latitude, longitude);
+
+        createNotes(notes)
+            .then(() => {
+                props.navigation.navigate(AppRoute.NotesList)
+            })
+            .catch(error => {
+                setError(error.response.data.message);
+            })
+
+
     }
 
     handleUpdateNotes = () => {
-        setIsSaving(true)
         let notes;
-        notes = new Notes(address, description, imageUri, latitude, longitude, currentUser);
-        updateNote(notes, noteKey).then(() => {
-            setIsSaving(false)
-            props.navigation.navigate(AppRoute.NotesList)
-        })
+        notes = new Notes(address, description, imageUri, latitude, longitude);
+        updateNote(notes, noteKey)
+            .then(() => {
+                props.navigation.navigate(AppRoute.NotesList)
+            })
             .catch(error => {
-                setIsSaving(false)
-                let errorMessage = parseFirebaseError(error);
-                setError(errorMessage);
+                setError(error.response.data.message);
             })
     }
 

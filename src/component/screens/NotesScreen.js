@@ -19,6 +19,7 @@ const Notes = (props) => {
 
     //load data initially
     useEffect(() => {
+
         loadNotes();
     }, [])
 
@@ -49,11 +50,12 @@ const Notes = (props) => {
                 { text: 'Cancel' },
                 {
                     text: 'OK',
-                    onPress: () => deleteNotesWithId(noteId).then(() => {
+                    onPress: () => deleteNotesWithId(noteId).then((response) => {
+                        Alert.alert(response.message);
                         loadNotes();
                     })
                         .catch(error => {
-                            Alert.alert(error);
+                            Alert.alert(error.response);
                         })
                 },
             ],
@@ -70,10 +72,10 @@ const Notes = (props) => {
             <FlatList
                 style={[styles.cardContainer, {}]}
                 data={notes}
-                keyExtractor={(item) => item.id}
+                keyExtractor={(item) => item._id}
                 renderItem={({ item }) => (
                     <Card
-                        image={{ uri: item.imgurl }}>
+                        image={{ uri: item.imageUrl }}>
 
                         <Text style={{ fontSize: 16 }}>{item.address}</Text>
                         <View style={styles.containerFlexRow}>
@@ -82,7 +84,7 @@ const Notes = (props) => {
                                 style={{ marginHorizontal: 4 }}
                                 onPress={() => props.navigation.navigate(AppRoute.AddNotes,
                                     {
-                                        key: item.id,
+                                        key: item._id,
                                         mode: 'EDIT'
                                     })}
                             >
@@ -91,7 +93,7 @@ const Notes = (props) => {
 
                             <TouchableOpacity
                                 style={{ marginHorizontal: 4 }}
-                                onPress={() => deleteNote(item.id)}>
+                                onPress={() => deleteNote(item._id)}>
                                 <Icon name='delete' type='material' size={20} color={colors.primary} />
                             </TouchableOpacity>
 

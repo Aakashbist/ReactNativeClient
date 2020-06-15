@@ -49,10 +49,6 @@ const Signup = (props) => {
                 setError(error.response.data.message);
                 setIsLoading(false);
             });
-
-
-
-
     }
 
     navigateToLogin = () => {
