@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Image, ScrollView, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import { Firebase, getCurrentUser } from '../../config/Firebase';
+import { ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Overlay } from 'react-native-elements';
 import AppRoute from '../../resources/appRoute';
 import colors from '../../resources/colors';
 import styles from '../../resources/styles';
-import parseFirebaseError from '../errorParser/firebaseErrorParser';
-import { Overlay } from 'react-native-elements';
-import axios from 'axios';
-import { User } from '../../models/User';
-import AsyncStorage from '@react-native-community/async-storage';
-import { storeDataInAsyncStorage, getDataFromAsyncStorage } from '../../utils/asyncStorageHelper';
+import { signInWithEmailAndPassword } from '../../services/LoginService';
+
 
 
 const Login = (props) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState();
+    const [message, setMessage] = useState();
     const [canLogin, setCanLogin] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -27,23 +23,14 @@ const Login = (props) => {
     }, [email, password]);
 
     handleLogin = async () => {
-        // const user = new User(email, password)
         setIsLoading(true)
-        try {
-            const user = await axios.post('http://localhost:3000/api/user/login', {
-                email: email,
-                password: password
-            });
-            storeDataInAsyncStorage("token", user.data.token);
+        signInWithEmailAndPassword({ email, password }).then(() => {
             setIsLoading(false);
             props.navigation.navigate(AppRoute.NotesList)
-        }
-        catch (err) {
+        }).catch(err => {
             setIsLoading(false);
-            setError(err.response.data.message);
-        }
-
-
+            setMessage(err.response.data.message);
+        })
     }
 
 
@@ -64,7 +51,7 @@ const Login = (props) => {
                 </View>
             </Overlay>
         </React.Fragment>;
-    let errorView = error ? <Text style={{ color: colors.textColorError }}>{error}</Text> : null;
+    let errorView = message ? <Text style={{ color: colors.textColorError }}>{message}</Text> : null;
 
     return (
         <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps={'always'} keyboardDismissMode={'on-drag'}>

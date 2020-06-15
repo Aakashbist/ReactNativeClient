@@ -6,7 +6,7 @@ import { Notes } from '../../models/Notes';
 import AppRoute from '../../resources/appRoute';
 import colors from '../../resources/colors';
 import styles from '../../resources/styles';
-import { openDocumentPicker } from '../../services/ImageUploadService';
+import { openDocumentPicker, uploadDocumentToNodeServer } from '../../services/ImageUploadService';
 import { getGooglePlaceAutocomplete, getGooglePlaceDetails } from '../../services/mapService';
 import { createNotes, getNoteById, updateNote } from '../../services/NoteService';
 import parseMapApiError from '../errorParser/mapApiErrorParser';
@@ -28,8 +28,6 @@ const AddNotes = (props) => {
     const [noteKey, setNoteKey] = useState();
     const [isSaving, setIsSaving] = useState(false);
     const [photo, setPhoto] = useState();
-
-    const url = "http://localhost:3000/uploads/2020-06-12T11:34:41.605Zsudoku_banner.png";
 
     useEffect(() => {
         let _canAddNotes =
@@ -122,18 +120,17 @@ const AddNotes = (props) => {
             .catch(error => setError(error))
     }
 
-    handleAddNotes = () => {
-        let notes;
-        notes = new Notes(address, description, url, latitude, longitude);
-
-        createNotes(notes)
-            .then(() => {
-                props.navigation.navigate(AppRoute.NotesList)
-            })
-            .catch(error => {
-                setError(error.response.data.message);
-            })
-
+    handleAddNotes = async () => {
+        const data = new FormData();
+        data.append("Images", photo)
+        uploadDocumentToNodeServer(data)
+            .then(url => {
+                const notes = new Notes(address, description, url, latitude, longitude);
+                createNotes(notes)
+                    .then(() => {
+                        props.navigation.navigate(AppRoute.NotesList)
+                    }).catch(err => alert(JSON.stringify(err.response.data) + "  in catch"))
+            }).catch(error => alert(error.response))
 
     }
 

@@ -1,16 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
-import { ScrollView, View, FlatList, TouchableOpacity } from 'react-native';
-import { Icon, Card, Text, Tooltip } from 'react-native-elements';
+import AsyncStorage from '@react-native-community/async-storage';
+import React, { useEffect, useState } from 'react';
+import { Alert, FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Card, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-navigation';
 import AppRoute from '../../resources/appRoute';
 import colors from '../../resources/colors';
 import styles from '../../resources/styles';
-import firebase, { Firebase } from '../../config/Firebase'
-import { getNotes, deleteNotesWithId, getNoteById } from '../../services/NoteService';
-import { getCurrentUser } from '../../config/Firebase';
-import { Alert } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
+import { deleteNotesWithId, getNotes } from '../../services/NoteService';
 const Notes = (props) => {
 
     const [notes, setNotes] = useState([]);

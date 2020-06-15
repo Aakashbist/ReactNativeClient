@@ -1,27 +1,7 @@
-import { Firebase } from '../config/Firebase';
 import ImagePicker from 'react-native-image-picker';
+import { getDataFromAsyncStorage } from '../utils/asyncStorageHelper';
+import { axiosConfig } from '../config/axiosConfig';
 
-const collection = "Documents"
-export async function getDownloadUrl(uri, fileName) {
-    const documentUri = getUriBasedOnOS(uri)
-    const response = await fetch(documentUri);
-    const blob = await response.blob();
-    var storageRef = Firebase.storage().ref().child(`${collection}/${fileName}`);
-
-    let task = storageRef.put(blob);
-    return new Promise((resolve, reject) => {
-        task.on('state_changed', () => { },
-            (error) => { reject(error) },
-            () => {
-                task.snapshot.ref.getDownloadURL()
-                    .then((downloadUrl) => {
-                        resolve(downloadUrl)
-                    })
-                    .catch((error) => reject(error))
-            }
-        )
-    });
-}
 
 function getUriBasedOnOS(uri) {
     const documentUri = Platform.OS === 'ios' ? uri.replace('file://', '') : uri
@@ -33,6 +13,7 @@ export function openDocumentPicker() {
         try {
 
             ImagePicker.showImagePicker({ noData: true, mediaType: 'photo' }, (response) => {
+
                 resolve(response)
             });
         } catch (err) {
@@ -40,5 +21,17 @@ export function openDocumentPicker() {
             reject(err);
         }
 
+    })
+}
+
+export async function uploadDocumentToNodeServer(data) {
+    return new Promise(async (resolve, reject) => {
+        const res = await getDataFromAsyncStorage("token");
+        axiosConfig(res).post(`document`, data).then((res) => {
+            resolve(res.data);
+        }).catch(error => {
+            alert(error)
+            reject(error)
+        })
     })
 }

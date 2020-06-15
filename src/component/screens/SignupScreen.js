@@ -1,29 +1,18 @@
-import { Container } from 'native-base';
 import React, { useEffect, useState } from 'react';
-import { Image, ProgressBarAndroid, ScrollView, Text, TextInput, TouchableOpacity, View, ActivityIndicator } from 'react-native';
-import { Firebase } from '../../config/Firebase';
+import { ActivityIndicator, Image, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Overlay } from 'react-native-elements';
+import { User } from '../../models/User';
 import AppRoute from '../../resources/appRoute';
 import colors from '../../resources/colors';
 import styles from '../../resources/styles';
-import parseFirebaseError from '../errorParser/firebaseErrorParser';
-import AsyncStorage from '@react-native-community/async-storage';
-import axios from 'axios';
-import { User } from '../../models/User';
-
-const SignupSteps = {
-    SIGNUP: 0,
-    SIGNUP_SUCCESS: 1
-}
-
+import { signUpWithEmailAndPassword } from '../../services/LoginService';
 
 
 const Signup = (props) => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState();
-    const [step, setStep] = useState(SignupSteps.SIGNUP);
+    const [message, setMessage] = useState();
     const [canSignUp, setCanSignUp] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -39,23 +28,17 @@ const Signup = (props) => {
 
     handleSignUp = () => {
         const user = new User(email, password, name)
-        setIsLoading(true);
-        return axios.post('http://localhost:3000/api/user/register', user)
-            .then(data => {
-
-                setIsLoading(false);
-                navigateToLogin();
+        signUpWithEmailAndPassword(user)
+            .then((response) => {
+                setMessage(response.data.message);
             }).catch((error) => {
-                setError(error.response.data.message);
-                setIsLoading(false);
+                setMessage(error.response.data.message);
             });
     }
 
     navigateToLogin = () => {
         props.navigation.navigate(AppRoute.Login);
     }
-
-
 
     clearFields = () => {
         setEmail('');
@@ -78,7 +61,7 @@ const Signup = (props) => {
             </Overlay>
         </React.Fragment>;
 
-    let errorView = error ? <Text style={{ color: colors.textColorError }}>{error}</Text> : null;
+    let errorView = message ? <Text style={{ color: colors.textColorError }}>{message}</Text> : null;
 
     let view = <React.Fragment>
         <TextInput

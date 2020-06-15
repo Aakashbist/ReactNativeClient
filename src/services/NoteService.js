@@ -1,6 +1,5 @@
-import axios from 'axios';
-import { getDataFromAsyncStorage } from '../utils/asyncStorageHelper';
 import { axiosConfig } from '../config/axiosConfig';
+import { getDataFromAsyncStorage } from '../utils/asyncStorageHelper';
 
 
 

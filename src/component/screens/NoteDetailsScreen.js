@@ -1,9 +1,8 @@
 
-import React, { Fragment, useEffect, useState } from 'react';
-import { Firebase } from '../../config/Firebase';
-import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import styles from '../../resources/styles';
+import React from 'react';
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import colors from '../../resources/colors';
+import styles from '../../resources/styles';
 
 const NoteDetails = (props) => {
     return (
