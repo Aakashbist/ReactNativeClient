@@ -33,6 +33,7 @@ const Notes = (props) => {
     setNotesInState = (notesList) => {
         setNotes(notesList);
     }
+
     handleLoadMore = () => {
         setPage(page + 1)
         getNotes(page + 1, limit).then((response) => {

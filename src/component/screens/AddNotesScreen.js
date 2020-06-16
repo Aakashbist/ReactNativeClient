@@ -129,9 +129,8 @@ const AddNotes = (props) => {
                 createNotes(notes)
                     .then(() => {
                         props.navigation.navigate(AppRoute.NotesList)
-                    }).catch(err => alert(JSON.stringify(err.response.data) + "  in catch"))
+                    }).catch(err => setError(err.response.data))
             }).catch(error => alert(error.response))
-
     }
 
     handleUpdateNotes = () => {
@@ -251,11 +250,6 @@ const AddNotes = (props) => {
             </View> : null
         }
     </View >
-
-
-
-
-
 
     return (
         <ScrollView >
