@@ -1,43 +1,47 @@
 
 import AsyncStorage from '@react-native-community/async-storage';
 import React, { useEffect, useState } from 'react';
-import { Alert, FlatList, ScrollView, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, ScrollView, TouchableOpacity, View, ActivityIndicator } from 'react-native';
 import { Card, Icon, Text } from 'react-native-elements';
 import { SafeAreaView } from 'react-navigation';
 import AppRoute from '../../resources/appRoute';
 import colors from '../../resources/colors';
 import styles from '../../resources/styles';
 import { deleteNotesWithId, getNotes } from '../../services/NoteService';
+import { set } from 'react-native-reanimated';
 const Notes = (props) => {
 
     const [notes, setNotes] = useState([]);
+    const [page, setPage] = useState(1);
+    const [limit, setLimit] = useState(4);
+    const [next, setNext] = useState()
+    const [previous, setPrevious] = useState()
 
-    // const currentUser = getCurrentUser().uid;
 
     //load data initially
     useEffect(() => {
-
         loadNotes();
     }, [])
 
-    //load data when navigating back
-    useEffect(() => {
-        props.navigation.addListener('didFocus', () => {
-            loadNotes();
-        })
-    }, [])
-
     loadNotes = () => {
-        getNotes().then((notes) => {
-            setNotes(notes)
+        getNotes(page, limit).then((response) => {
+            showLoadMore(response);
+            setNotes(response.results)
         }).catch(err => alert(err))
-
     }
 
     setNotesInState = (notesList) => {
         setNotes(notesList);
     }
+    handleLoadMore = () => {
+        setPage(page + 1)
+        getNotes(page + 1, limit).then((response) => {
+            showLoadMore(response);
+            setNotes([...notes, ...response.results])
 
+        }).catch(err => alert(err))
+
+    }
 
     deleteNote = (noteId) => {
         Alert.alert(
@@ -61,6 +65,33 @@ const Notes = (props) => {
     }
 
 
+    showLoadMore = (response) => {
+
+        if (response.next) {
+            setNext(true);
+        }
+        else {
+            setNext(false);
+        }
+    }
+
+
+    renderFooter = () => {
+        return (
+            <View>
+                {next ?
+                    <TouchableOpacity
+                        style={[styles.button, { width: 50, alignSelf: 'center', marginVertical: 4 }]}
+                        activeOpacity={0.9}
+                        onPress={this.handleLoadMore}
+                    >
+                        <Text style={styles.buttonText}>Load More</Text>
+
+                    </TouchableOpacity> : null}
+            </View>
+        );
+    }
+
     let view = notes == null ? <View style={{ flex: 1, justifyContent: "center", padding: 16 }}>
         <Text style={{ fontSize: 28 }}> Notes </Text>
         <Text style={{ fontSize: 18, marginTop: 16 }}> No available  Notes </Text>
@@ -70,6 +101,9 @@ const Notes = (props) => {
                 style={[styles.cardContainer, {}]}
                 data={notes}
                 keyExtractor={(item) => item._id}
+                onEndReachedThreshold={0.5}
+                onEndReached={() => handleLoadMore()}
+
                 renderItem={({ item }) => (
                     <Card
                         image={{ uri: item.imageUrl }}>
@@ -155,5 +189,7 @@ Notes.navigationOptions = (props) => ({
     }
 });
 export default Notes
+
+
 
 
